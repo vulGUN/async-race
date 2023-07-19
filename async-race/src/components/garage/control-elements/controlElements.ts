@@ -1,5 +1,5 @@
-import { checkQuerySelector } from '../../../utils/checkQuerySelector';
 import './controlElements.css';
+// import { checkQuerySelector } from '../../../utils/checkQuerySelector';
 
 export class ControlElements {
   private readonly CREATE_BTN_TEXT = 'Create';

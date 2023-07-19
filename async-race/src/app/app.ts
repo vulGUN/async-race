@@ -7,12 +7,16 @@ export class App {
 
   private garage: Garage = new Garage();
 
-  public init(): void {
+  public async init(): Promise<void> {
     const container = checkQuerySelector('#container');
 
     container.appendChild(this.controlElements.createControlElementsLayout());
-    container.appendChild(this.garage.createGarageLayout());
+    container.appendChild(await this.garage.createGarageLayout());
 
     this.controlElements.pressInputBtn();
+
+    this.garage.setCarName();
+    this.garage.setCarColor();
+    this.garage.addNewCar();
   }
 }

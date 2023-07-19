@@ -2,6 +2,9 @@
 
 .garage {
   margin-top: 50px;
+}
+
+.garage__drive {
   position: relative;
 }
 
@@ -17,7 +20,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 20px 0;
+  margin: 10px 0;
 }
 
 .garage__car-name {
@@ -36,15 +39,14 @@
 .garage__drive-stop-btn {
   padding: 5px 10px;
   text-align: center;
+  font-size: 0.7em;
   border: 1px solid var(--active-drive);
   border-radius: 5px;
   cursor: pointer;
 }
 
 .garage__car {
-  background: url(../../../img/car.svg) center center/cover no-repeat;
-  width: 100px;
-  height: 30px;
+  max-height: 26px;
 }
 
 .garage__finish {
