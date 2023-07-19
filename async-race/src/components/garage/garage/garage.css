@@ -1,0 +1,61 @@
+@import url(../../../global.css);
+
+.garage {
+  margin-top: 50px;
+  position: relative;
+}
+
+.garage__count {
+  font-size: 1.5em;
+}
+
+.garage__race {
+  margin-top: 50px;
+}
+
+.garage__controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.garage__car-name {
+  color: var(--car-name-color);
+  margin-left: 10px;
+}
+
+.garage__drive-btns {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.garage__drive-start-btn,
+.garage__drive-stop-btn {
+  padding: 5px 10px;
+  text-align: center;
+  border: 1px solid var(--active-drive);
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.garage__car {
+  background: url(../../../img/car.svg) center center/cover no-repeat;
+  width: 100px;
+  height: 30px;
+}
+
+.garage__finish {
+  position: absolute;
+  bottom: 0;
+  right: 80px;
+  background: url(../../../img/finish.png) center center/cover no-repeat;
+  width: 60px;
+  height: 60px;
+}
+
+.garage__road {
+  border-bottom: 2px dashed #ccc;
+}

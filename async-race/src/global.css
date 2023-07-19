@@ -1,3 +1,13 @@
+:root {
+  --main-color: #fff;
+  --background-color: #4c5869;
+  --button-text-color: #242424;
+  --button-bg: #ccc;
+  --border-button: #7e7e7e;
+  --car-name-color: #fffb1c;
+  --active-drive: #3cdc3f;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -5,7 +15,75 @@
 }
 
 body {
-  color: #fff;
-  background: #4b4b4b;
+  color: var(--main-color);
+  background: var(--background-color);
   font-family: 'Roboto Mono', monospace;
+}
+
+#container {
+  padding: 10px;
+}
+
+.button {
+  background: var(--button-bg);
+  padding: 5px 10px;
+  max-width: 150px;
+  text-align: center;
+  font-size: 0.8em;
+  color: var(--button-text-color);
+  font-weight: 600;
+  white-space: nowrap;
+  border-radius: 5px;
+  border-bottom: 3px solid var(--border-button);
+  cursor: pointer;
+  user-select: none;
+  transition: 0.1s border-bottom;
+}
+
+input {
+  outline: none;
+  height: 30px;
+  border-radius: 5px;
+  border: none;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.controls-create__input-color,
+.controls-update__input-color {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 100px;
+  appearance: none;
+  padding: 0 3px;
+  background-color: var(--button-bg);
+  border: none;
+  cursor: pointer;
+}
+.controls-create__input-color::-webkit-color-swatch,
+.controls-update__input-color::-webkit-color-swatch {
+  border-radius: 5px;
+  /* border: none; */
+}
+.controls-create__input-color::-moz-color-swatch,
+.controls-update__input-color::-moz-color-swatch {
+  border-radius: 5px;
+  /* border: none; */
+}
+
+input[type='text'] {
+  padding: 0 10px;
+  width: 100%;
+}
+
+.press-down {
+  animation: press-down 0.1s forwards;
+}
+
+@keyframes press-down {
+  from {
+    border-bottom: solid 3px #999;
+  }
+  to {
+    border-bottom: solid 1px #999;
+  }
 }
