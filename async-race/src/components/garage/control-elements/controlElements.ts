@@ -1,7 +1,14 @@
 import './controlElements.css';
-// import { checkQuerySelector } from '../../../utils/checkQuerySelector';
+import { Garage } from '../garage/garage';
+import { checkQuerySelector } from '../../../utils/checkQuerySelector';
 
 export class ControlElements {
+  private readonly GARAGE: Garage;
+
+  private readonly SERVER_URL: string = 'http://127.0.0.1:3000';
+
+  private readonly GARAGE_PATH: string = '/garage';
+
   private readonly CREATE_BTN_TEXT = 'Create';
 
   private readonly UPDATE_BTN_TEXT = 'Update';
@@ -11,6 +18,14 @@ export class ControlElements {
   private readonly RESET_BTN_TEXT = 'Reset';
 
   private readonly GENERATE_CARS_BTN_TEXT = 'Generate cars';
+
+  private inputCarName = '';
+
+  private inputCarColor = '';
+
+  constructor(garage: Garage) {
+    this.GARAGE = garage;
+  }
 
   public createControlElementsLayout(): DocumentFragment {
     const fragment: DocumentFragment = document.createDocumentFragment();
@@ -38,15 +53,34 @@ export class ControlElements {
     inputName.setAttribute('type', 'text');
     inputName.setAttribute('placeholder', 'Сar name');
     inputName.classList.add('controls-create__input-text');
+    inputName.addEventListener('input', (event: Event) => {
+      if (event.target instanceof HTMLInputElement) {
+        const { value } = event.target;
+        this.inputCarName = value;
+      }
+    });
 
     const inputColor: HTMLInputElement = document.createElement('input');
     inputColor.setAttribute('type', 'color');
     inputColor.setAttribute('value', randomColor);
     inputColor.classList.add('controls-create__input-color');
+    this.inputCarColor = inputColor.value;
+    inputColor.addEventListener('input', (event: Event) => {
+      if (event.target instanceof HTMLInputElement) {
+        const { value } = event.target;
+        this.inputCarColor = value;
+      }
+    });
 
     const createButton: HTMLElement = document.createElement('div');
     createButton.classList.add('controls-create__button', 'button');
     createButton.textContent = this.CREATE_BTN_TEXT.toUpperCase();
+    createButton.addEventListener('click', () => {
+      this.createCar();
+      this.updateGarageList();
+      inputName.value = '';
+    });
+    this.GARAGE.addBtnAnimation(createButton);
 
     controlsCreateWrapper.append(inputName, inputColor, createButton);
 
@@ -61,6 +95,7 @@ export class ControlElements {
 
     const inputName: HTMLInputElement = document.createElement('input');
     inputName.setAttribute('type', 'text');
+    inputName.setAttribute('disabled', '');
     inputName.classList.add('controls-update__input-text');
 
     const inputColor: HTMLInputElement = document.createElement('input');
@@ -71,6 +106,13 @@ export class ControlElements {
     const updateButton: HTMLElement = document.createElement('div');
     updateButton.classList.add('controls-update__button', 'button');
     updateButton.textContent = this.UPDATE_BTN_TEXT.toUpperCase();
+    updateButton.addEventListener('click', () => {
+      if (!inputName.hasAttribute('disabled')) {
+        this.updateCar(this.GARAGE.getCurrentId());
+        this.updateGarageList();
+      }
+    });
+    this.GARAGE.addBtnAnimation(updateButton);
 
     controlsUpdateWrapper.append(inputName, inputColor, updateButton);
 
@@ -84,14 +126,17 @@ export class ControlElements {
     const raceButton: HTMLElement = document.createElement('div');
     raceButton.classList.add('controls-btns__race-button', 'button');
     raceButton.textContent = this.RACE_BTN_TEXT.toUpperCase();
+    this.GARAGE.addBtnAnimation(raceButton);
 
     const resetButton: HTMLElement = document.createElement('div');
     resetButton.classList.add('controls-btns__reset-button', 'button');
     resetButton.textContent = this.RESET_BTN_TEXT.toUpperCase();
+    this.GARAGE.addBtnAnimation(resetButton);
 
     const generateCarsButton: HTMLElement = document.createElement('div');
     generateCarsButton.classList.add('controls-btns__generate-cars-button', 'button');
     generateCarsButton.textContent = this.GENERATE_CARS_BTN_TEXT.toUpperCase();
+    this.GARAGE.addBtnAnimation(generateCarsButton);
 
     controlsBtnWrapper.append(raceButton, resetButton, generateCarsButton);
 
@@ -109,25 +154,36 @@ export class ControlElements {
     return color;
   }
 
-  public pressInputBtn(): void {
-    const btns: NodeListOf<Element> = document.querySelectorAll('.button');
+  public async updateGarageList(): Promise<void> {
+    this.GARAGE.getCars();
+    const garage = checkQuerySelector('.garage');
+    garage.innerHTML = '';
+    garage.appendChild(await this.GARAGE.createGarageLayout());
+  }
 
-    btns.forEach((item) => {
-      item.addEventListener('mousedown', (event) => {
-        const { target } = event;
-
-        if (target instanceof HTMLElement) {
-          target.classList.add('press-down');
-        }
+  public async createCar(): Promise<void> {
+    if (this.inputCarName) {
+      const url = `${this.SERVER_URL}${this.GARAGE_PATH}`;
+      fetch(url, {
+        method: 'POST',
+        body: JSON.stringify({ name: this.inputCarName, color: this.inputCarColor }),
+        headers: { 'Content-Type': 'application/json' },
       });
+    }
+  }
 
-      item.addEventListener('mouseup', (event) => {
-        const { target } = event;
-
-        if (target instanceof HTMLElement) {
-          target.classList.remove('press-down');
-        }
+  public async updateCar(id: string): Promise<void> {
+    if (id) {
+      const url = `${this.SERVER_URL}${this.GARAGE_PATH}/${id}`;
+      const updateInput: HTMLInputElement = checkQuerySelector('.controls-update__input-text');
+      const updateInputColor: HTMLInputElement = checkQuerySelector('.controls-update__input-color');
+      fetch(url, {
+        method: 'PUT',
+        body: JSON.stringify({ name: updateInput.value, color: updateInputColor.value }),
+        headers: { 'Content-Type': 'application/json' },
       });
-    });
+      updateInput.value = '';
+      updateInput.setAttribute('disabled', '');
+    }
   }
 }

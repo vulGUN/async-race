@@ -3,9 +3,9 @@ import { Garage } from '../components/garage/garage/garage';
 import { checkQuerySelector } from '../utils/checkQuerySelector';
 
 export class App {
-  private controlElements: ControlElements = new ControlElements();
-
   private garage: Garage = new Garage();
+
+  private controlElements: ControlElements = new ControlElements(this.garage);
 
   public async init(): Promise<void> {
     const container = checkQuerySelector('#container');
@@ -13,10 +13,12 @@ export class App {
     container.appendChild(this.controlElements.createControlElementsLayout());
     container.appendChild(await this.garage.createGarageLayout());
 
-    this.controlElements.pressInputBtn();
+    // this.controlElements.pressInputBtn();
 
-    this.garage.setCarName();
-    this.garage.setCarColor();
-    this.garage.addNewCar();
+    // this.garage.setCarName();
+    // this.garage.setCarColor();
+    // this.garage.addNewCar();
+
+    // this.garage.pressRemoveBtn();
   }
 }
