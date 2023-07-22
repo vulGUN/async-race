@@ -47,6 +47,10 @@
 }
 
 .garage__car {
+  position: absolute;
+  bottom: 2px;
+  left: 80px;
+  display: inline-block;
   max-height: 26px;
 }
 

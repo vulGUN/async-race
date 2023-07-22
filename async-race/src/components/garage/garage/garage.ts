@@ -7,14 +7,19 @@ type Cars = {
   name: string;
 };
 
+type Engine = {
+  velocity: number;
+  distance: number;
+};
+
 export class Garage {
   private readonly SERVER_URL: string = 'http://localhost:3000';
 
   private readonly GARAGE_PATH: string = '/garage';
 
-  private readonly REMOVE_TEXT_BTN: string = 'Remove';
+  private readonly ENGINE_PATH: string = '/engine';
 
-  // private readonly REMOVE_BTN_SELECTOR: string = 'Remove';
+  private readonly REMOVE_TEXT_BTN: string = 'Remove';
 
   private readonly SELECT_TEXT_BTN: string = 'Select';
 
@@ -88,6 +93,9 @@ export class Garage {
       garageDriveStart.classList.add('garage__drive-start-btn');
       garageDriveStart.setAttribute('id', `garage__drive-start-btn-${item.id}`);
       garageDriveStart.innerText = 'D';
+      garageDriveStart.addEventListener('click', () => {
+        this.startDrive(item.id, 'started');
+      });
 
       const garageDriveStop: HTMLDivElement = document.createElement('div');
       garageDriveStop.classList.add('garage__drive-stop-btn');
@@ -101,7 +109,7 @@ export class Garage {
       car.setAttribute('id', `garage__car-${item.id}`);
       const svgCode = `
           <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
-          width="60.000000pt" height="20.000000pt" viewBox="0 0 509.000000 159.000000"
+          width="60.000000pt" height="20.000000pt" viewBox="0 0 509.000000 139.000000"
           preserveAspectRatio="xMidYMid meet">
          
           <g transform="translate(0.000000,159.000000) scale(0.100000,-0.100000)"
@@ -182,7 +190,7 @@ export class Garage {
   public async deleteCar(id: string): Promise<void> {
     const url = `${this.SERVER_URL}${this.GARAGE_PATH}/${id}`;
 
-    fetch(url, { method: 'DELETE' });
+    await fetch(url, { method: 'DELETE' });
   }
 
   public async pressSelectBtn(event: Event): Promise<void> {
@@ -199,6 +207,45 @@ export class Garage {
       updateInput.value = car.name;
       updateInputColor.value = car.color;
     }
+  }
+
+  public async startAndStopEngine(id: number, status: string): Promise<Engine> {
+    const url = `${this.SERVER_URL}${this.ENGINE_PATH}/?id=${id}&status=${status}`;
+
+    const response = await fetch(url, { method: 'PATCH' });
+    const engine = await response.json();
+    return engine;
+  }
+
+  private async startDrive(id: number, status: string): Promise<void> {
+    const { velocity, distance } = await this.startAndStopEngine(id, status);
+    const car: HTMLElement = checkQuerySelector(`#garage__car-${id}`);
+    const garage: HTMLElement = checkQuerySelector('.garage');
+    const currentWidth: number = garage.clientWidth;
+    const styles: CSSStyleDeclaration = window.getComputedStyle(car);
+    const leftValue: number = parseFloat(styles.left);
+
+    const endPosition: number = currentWidth - car.offsetWidth - leftValue;
+    const time: number = Math.trunc(distance / velocity);
+
+    let startTime: number;
+
+    function animate(timestamp: number): void {
+      if (!startTime) startTime = timestamp;
+
+      const animationTime: number = timestamp - startTime;
+      if (animationTime >= time) {
+        car.style.transform = `translateX(${endPosition}px)`;
+      } else {
+        const progress: number = animationTime / time;
+        const newPosition: number = endPosition * progress;
+        car.style.transform = `translateX(${newPosition}px)`;
+
+        requestAnimationFrame(animate);
+      }
+    }
+
+    requestAnimationFrame(animate);
   }
 
   public addBtnAnimation(element: HTMLElement): void {
