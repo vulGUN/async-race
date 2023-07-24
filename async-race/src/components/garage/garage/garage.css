@@ -13,7 +13,7 @@
 }
 
 .garage__race {
-  margin-top: 50px;
+  margin-top: 40px;
 }
 
 .garage__controls {
@@ -38,12 +38,18 @@
 
 .garage__drive-start-btn,
 .garage__drive-stop-btn {
-  padding: 5px 10px;
+  padding: 3px 8px;
   text-align: center;
-  font-size: 0.7em;
-  border: 1px solid var(--active-drive);
+  font-size: 0.8em;
+  border: 2px solid var(--start-drive);
+  color: var(--start-drive);
   border-radius: 5px;
   cursor: pointer;
+}
+
+.garage__drive-stop-btn {
+  border: 2px solid var(--stop-drive);
+  color: var(--stop-drive);
 }
 
 .garage__car {
@@ -65,4 +71,11 @@
 
 .garage__road {
   border-bottom: 2px dashed #ccc;
+}
+
+.garage__pagination {
+  margin-top: 40px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }

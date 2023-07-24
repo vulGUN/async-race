@@ -5,7 +5,8 @@
   --button-bg: #ccc;
   --border-button: #7e7e7e;
   --car-name-color: #fffb1c;
-  --active-drive: #3cdc3f;
+  --start-drive: #3cdc3f;
+  --stop-drive: #f16b28;
 }
 
 * {

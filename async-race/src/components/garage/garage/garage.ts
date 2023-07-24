@@ -1,7 +1,7 @@
 import './garage.css';
 import { checkQuerySelector } from '../../../utils/checkQuerySelector';
 
-type Cars = {
+export type Cars = {
   id: number;
   color: string;
   name: string;
@@ -23,10 +23,15 @@ export class Garage {
 
   private readonly SELECT_TEXT_BTN: string = 'Select';
 
+  private readonly MAX_CARS_PER_PAGE: number = 7;
+
   private currentId = '';
+
+  private currentPage = 0;
 
   public async createGarageLayout(): Promise<DocumentFragment> {
     const carsList: Cars[] = await this.getCars();
+    const carsPerPageList: Cars[][] = await this.splitByPages(this.MAX_CARS_PER_PAGE, carsList);
 
     const fragment: DocumentFragment = document.createDocumentFragment();
 
@@ -39,19 +44,50 @@ export class Garage {
 
     const garagePage: HTMLDivElement = document.createElement('div');
     garagePage.classList.add('garage__page');
-    garagePage.innerText = 'Page #1';
+    garagePage.innerText = `Page #${this.currentPage + 1}`;
 
-    const garageRace = this.createRaceLayout(carsList);
-    garage.append(garageCount, garagePage, garageRace);
+    const paginationContainer = document.createElement('div');
+    paginationContainer.classList.add('garage__pagination');
+
+    const prevPageBtn = document.createElement('div');
+    prevPageBtn.classList.add('garage__pagination-prev-btn', 'button');
+    prevPageBtn.innerText = 'Prev'.toUpperCase();
+    prevPageBtn.addEventListener('click', async () => {
+      if (this.currentPage > 0) {
+        this.currentPage -= 1;
+        garage.innerHTML = '';
+        const container = checkQuerySelector('#container');
+        container.appendChild(await this.createGarageLayout());
+      }
+    });
+    this.addBtnAnimation(prevPageBtn);
+
+    const nextPageBtn = document.createElement('div');
+    nextPageBtn.classList.add('garage__pagination-next-btn', 'button');
+    nextPageBtn.innerText = 'Next'.toUpperCase();
+    nextPageBtn.addEventListener('click', async () => {
+      if (this.currentPage < carsPerPageList.length - 1) {
+        this.currentPage += 1;
+        garage.innerHTML = '';
+        const container = checkQuerySelector('#container');
+        container.appendChild(await this.createGarageLayout());
+      }
+    });
+    this.addBtnAnimation(nextPageBtn);
+
+    const garageRace = this.createRaceLayout(carsPerPageList, this.currentPage);
+
+    paginationContainer.append(prevPageBtn, nextPageBtn);
+    garage.append(garageCount, garagePage, garageRace, paginationContainer);
     fragment.appendChild(garage);
 
     return fragment;
   }
 
-  private createRaceLayout(carsList: Cars[]): DocumentFragment {
+  private createRaceLayout(carsList: Cars[][], page: number): DocumentFragment {
     const fragment: DocumentFragment = document.createDocumentFragment();
 
-    carsList.forEach((item) => {
+    carsList[page].forEach((item) => {
       const garageRace: HTMLDivElement = document.createElement('div');
       garageRace.setAttribute('id', `garage__race-${item.id}`);
       garageRace.classList.add('garage__race');
@@ -101,6 +137,9 @@ export class Garage {
       garageDriveStop.classList.add('garage__drive-stop-btn');
       garageDriveStop.setAttribute('id', `garage__drive-stop-btn-${item.id}`);
       garageDriveStop.innerText = 'R';
+      garageDriveStop.addEventListener('click', () => {
+        this.stopDrive(item.id, 'stopped');
+      });
 
       garageDriveBtns.append(garageDriveStart, garageDriveStop);
 
@@ -209,7 +248,7 @@ export class Garage {
     }
   }
 
-  public async startAndStopEngine(id: number, status: string): Promise<Engine> {
+  private async startAndStopEngine(id: number, status: string): Promise<Engine> {
     const url = `${this.SERVER_URL}${this.ENGINE_PATH}/?id=${id}&status=${status}`;
 
     const response = await fetch(url, { method: 'PATCH' });
@@ -217,7 +256,7 @@ export class Garage {
     return engine;
   }
 
-  private async startDrive(id: number, status: string): Promise<void> {
+  public async startDrive(id: number, status: string): Promise<void> {
     const { velocity, distance } = await this.startAndStopEngine(id, status);
     const car: HTMLElement = checkQuerySelector(`#garage__car-${id}`);
     const garage: HTMLElement = checkQuerySelector('.garage');
@@ -246,6 +285,24 @@ export class Garage {
     }
 
     requestAnimationFrame(animate);
+  }
+
+  public async stopDrive(id: number, status: string): Promise<void> {
+    const { velocity } = await this.startAndStopEngine(id, status);
+    if (!velocity) {
+      const car: HTMLElement = checkQuerySelector(`#garage__car-${id}`);
+      car.style.transform = `translateX(0)`;
+    }
+  }
+
+  private async splitByPages(carsPerPage: number, carsList: Cars[]): Promise<Cars[][]> {
+    const newCarsList: Cars[][] = [];
+
+    for (let i = 0; i < carsList.length; i += carsPerPage) {
+      newCarsList.push(carsList.slice(i, i + carsPerPage));
+    }
+
+    return newCarsList;
   }
 
   public addBtnAnimation(element: HTMLElement): void {

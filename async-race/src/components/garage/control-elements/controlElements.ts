@@ -1,5 +1,5 @@
 import './controlElements.css';
-import { Garage } from '../garage/garage';
+import { Garage, Cars } from '../garage/garage';
 import { checkQuerySelector } from '../../../utils/checkQuerySelector';
 
 export class ControlElements {
@@ -27,7 +27,7 @@ export class ControlElements {
     this.GARAGE = garage;
   }
 
-  public createControlElementsLayout(): DocumentFragment {
+  public async createControlElementsLayout(): Promise<DocumentFragment> {
     const fragment: DocumentFragment = document.createDocumentFragment();
 
     const controls: HTMLDivElement = document.createElement('div');
@@ -35,7 +35,7 @@ export class ControlElements {
 
     const createItems: HTMLElement = this.createAddItems();
     const updateItems: HTMLElement = this.createUpdateItems();
-    const btnItems: HTMLElement = this.createBtnItems();
+    const btnItems: HTMLElement = await this.createBtnItems();
 
     controls.append(createItems, updateItems, btnItems);
     fragment.appendChild(controls);
@@ -119,18 +119,26 @@ export class ControlElements {
     return controlsUpdateWrapper;
   }
 
-  private createBtnItems(): HTMLElement {
+  private async createBtnItems(): Promise<HTMLElement> {
+    const carsList: Cars[] = await this.GARAGE.getCars();
+
     const controlsBtnWrapper: HTMLDivElement = document.createElement('div');
     controlsBtnWrapper.classList.add('controls-btns');
 
     const raceButton: HTMLElement = document.createElement('div');
     raceButton.classList.add('controls-btns__race-button', 'button');
     raceButton.textContent = this.RACE_BTN_TEXT.toUpperCase();
+    raceButton.addEventListener('click', () => {
+      carsList.forEach((item) => this.GARAGE.startDrive(item.id, 'started'));
+    });
     this.GARAGE.addBtnAnimation(raceButton);
 
     const resetButton: HTMLElement = document.createElement('div');
     resetButton.classList.add('controls-btns__reset-button', 'button');
     resetButton.textContent = this.RESET_BTN_TEXT.toUpperCase();
+    resetButton.addEventListener('click', () => {
+      carsList.forEach((item) => this.GARAGE.stopDrive(item.id, 'stopped'));
+    });
     this.GARAGE.addBtnAnimation(resetButton);
 
     const generateCarsButton: HTMLElement = document.createElement('div');
@@ -153,6 +161,8 @@ export class ControlElements {
 
     return color;
   }
+
+  // !поправить дублирование класса garage
 
   public async updateGarageList(): Promise<void> {
     this.GARAGE.getCars();

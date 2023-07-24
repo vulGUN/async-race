@@ -10,7 +10,7 @@ export class App {
   public async init(): Promise<void> {
     const container = checkQuerySelector('#container');
 
-    container.appendChild(this.controlElements.createControlElementsLayout());
+    container.appendChild(await this.controlElements.createControlElementsLayout());
     container.appendChild(await this.garage.createGarageLayout());
 
     // this.controlElements.pressInputBtn();
