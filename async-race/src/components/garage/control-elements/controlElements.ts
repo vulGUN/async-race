@@ -129,7 +129,7 @@ export class ControlElements {
     raceButton.classList.add('controls-btns__race-button', 'button');
     raceButton.textContent = this.RACE_BTN_TEXT.toUpperCase();
     raceButton.addEventListener('click', () => {
-      carsList.forEach((item) => this.GARAGE.startDrive(item.id, 'started'));
+      carsList.forEach((item) => this.GARAGE.startAndStopEngine(item.id, 'started'));
     });
     this.GARAGE.addBtnAnimation(raceButton);
 

@@ -130,7 +130,7 @@ export class Garage {
       garageDriveStart.setAttribute('id', `garage__drive-start-btn-${item.id}`);
       garageDriveStart.innerText = 'D';
       garageDriveStart.addEventListener('click', () => {
-        this.startDrive(item.id, 'started');
+        this.startAndStopEngine(item.id, 'started');
       });
 
       const garageDriveStop: HTMLDivElement = document.createElement('div');
@@ -248,16 +248,23 @@ export class Garage {
     }
   }
 
-  private async startAndStopEngine(id: number, status: string): Promise<Engine> {
+  public async startAndStopEngine(id: number, status: string): Promise<Engine> {
     const url = `${this.SERVER_URL}${this.ENGINE_PATH}/?id=${id}&status=${status}`;
 
-    const response = await fetch(url, { method: 'PATCH' });
-    const engine = await response.json();
+    const response: Response = await fetch(url, { method: 'PATCH' });
+    const engine: Engine = await response.json();
+
+    if (response.status === 200 && status === 'started') this.switchToDriveMode(id, engine);
+
     return engine;
   }
 
-  public async startDrive(id: number, status: string): Promise<void> {
-    const { velocity, distance } = await this.startAndStopEngine(id, status);
+  public async switchToDriveMode(id: number, engine: Engine): Promise<void> {
+    const url = `${this.SERVER_URL}${this.ENGINE_PATH}/?id=${id}&status=drive`;
+    const responsePromise = fetch(url, { method: 'PATCH' });
+
+    const { velocity, distance } = engine;
+
     const car: HTMLElement = checkQuerySelector(`#garage__car-${id}`);
     const garage: HTMLElement = checkQuerySelector('.garage');
     const currentWidth: number = garage.clientWidth;
@@ -268,23 +275,34 @@ export class Garage {
     const time: number = Math.trunc(distance / velocity);
 
     let startTime: number;
+    let isResponse500 = false;
 
     function animate(timestamp: number): void {
       if (!startTime) startTime = timestamp;
 
       const animationTime: number = timestamp - startTime;
-      if (animationTime >= time) {
-        car.style.transform = `translateX(${endPosition}px)`;
-      } else {
-        const progress: number = animationTime / time;
-        const newPosition: number = endPosition * progress;
-        car.style.transform = `translateX(${newPosition}px)`;
 
-        requestAnimationFrame(animate);
+      if (!isResponse500) {
+        if (animationTime >= time) {
+          car.style.transform = `translateX(${endPosition}px)`;
+        } else {
+          const progress: number = animationTime / time;
+          const newPosition: number = endPosition * progress;
+          car.style.transform = `translateX(${newPosition}px)`;
+
+          requestAnimationFrame(animate);
+        }
       }
     }
 
     requestAnimationFrame(animate);
+
+    try {
+      const response = await responsePromise;
+      if (response.status === 500) isResponse500 = true;
+    } catch (error) {
+      isResponse500 = true;
+    }
   }
 
   public async stopDrive(id: number, status: string): Promise<void> {
