@@ -40,7 +40,7 @@ export class App {
       if (controls) container.removeChild(controls);
       if (garage) container.removeChild(garage);
 
-      container.appendChild(this.winners.createWinnersLayout());
+      container.appendChild(await this.winners.createWinnersLayout());
     });
   }
 }
