@@ -1,6 +1,13 @@
 @import url(../../../global.css);
 
+.page-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .controls {
+  margin-top: 30px;
   display: flex;
   flex-direction: column;
   gap: 10px;

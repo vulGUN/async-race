@@ -38,9 +38,28 @@ export class ControlElements {
     const btnItems: HTMLElement = await this.createBtnItems();
 
     controls.append(createItems, updateItems, btnItems);
-    fragment.appendChild(controls);
+    fragment.append(controls);
 
     return fragment;
+  }
+
+  public createPageBtn(): HTMLElement {
+    const pageBtn = document.createElement('div');
+    pageBtn.classList.add('page-button');
+
+    const garagePageBtn = document.createElement('div');
+    garagePageBtn.classList.add('page-button__garage', 'button');
+    garagePageBtn.innerText = 'To garage';
+    this.GARAGE.addBtnAnimation(garagePageBtn);
+
+    const winnersPageBtn = document.createElement('div');
+    winnersPageBtn.classList.add('page-button__winners', 'button');
+    winnersPageBtn.innerText = 'To winners';
+    this.GARAGE.addBtnAnimation(winnersPageBtn);
+
+    pageBtn.append(garagePageBtn, winnersPageBtn);
+
+    return pageBtn;
   }
 
   private createAddItems(): HTMLElement {
