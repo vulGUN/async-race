@@ -1,5 +1,6 @@
 import './winners.css';
 import { Garage, Cars } from '../garage/garage/garage';
+import { WinnerServices } from '../services/winnerService';
 
 type WinnerType = {
   id: number;
@@ -8,16 +9,22 @@ type WinnerType = {
 };
 
 export class Winners {
-  private readonly GARAGE: Garage = new Garage();
+  private readonly GARAGE: Garage;
 
-  private readonly SERVER_URL: string = 'http://localhost:3000';
+  // private readonly SERVER_URL: string = 'http://localhost:3000';
 
-  private readonly WINNERS_PATH: string = '/winners';
+  // private readonly WINNERS_PATH: string = '/winners';
+
+  private readonly WINNER_SERVICES: WinnerServices = new WinnerServices();
+
+  constructor(garage: Garage) {
+    this.GARAGE = garage;
+  }
 
   public async createWinnersLayout(): Promise<DocumentFragment> {
     const fragment = document.createDocumentFragment();
 
-    const winnersList = await this.getWinners();
+    const winnersList = await this.WINNER_SERVICES.getWinnerList();
 
     const winnersContainer = document.createElement('div');
     winnersContainer.classList.add('winners');
@@ -121,38 +128,5 @@ export class Winners {
     fragment.appendChild(tbody);
 
     return fragment;
-  }
-
-  public async getWinners(): Promise<WinnerType[]> {
-    const url = `${this.SERVER_URL}${this.WINNERS_PATH}`;
-    const response: Response = await fetch(url);
-    const winnerList = await response.json();
-
-    console.log(winnerList);
-
-    return winnerList;
-  }
-
-  public async getWinner(id: number): Promise<WinnerType> {
-    const url = `${this.SERVER_URL}${this.WINNERS_PATH}/${id}`;
-    const response: Response = await fetch(url);
-    const winner = await response.json();
-
-    console.log(winner);
-
-    return winner;
-  }
-
-  public async createWinner(id: number): Promise<Response> {
-    const url = `${this.SERVER_URL}${this.WINNERS_PATH}/${id}`;
-    const response: Response = await fetch(url, {
-      method: 'POST',
-      // body: JSON.stringify({ id: this.inputCarName, wins: this.inputCarColor, time: 10 }),
-      headers: { 'Content-Type': 'application/json' },
-    });
-
-    console.log(response);
-
-    return response;
   }
 }

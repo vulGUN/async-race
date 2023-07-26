@@ -8,7 +8,7 @@ export class App {
 
   private controlElements: ControlElements = new ControlElements(this.garage);
 
-  private winners: Winners = new Winners();
+  private winners: Winners = new Winners(this.garage);
 
   public async init(): Promise<void> {
     const container = checkQuerySelector('#container');

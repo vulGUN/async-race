@@ -1,5 +1,6 @@
 import './garage.css';
 import { checkQuerySelector } from '../../../utils/checkQuerySelector';
+import { WinnerServices } from '../../services/winnerService';
 
 export type Cars = {
   id: number;
@@ -19,15 +20,21 @@ export class Garage {
 
   private readonly ENGINE_PATH: string = '/engine';
 
+  private readonly WINNERS_PATH: string = '/winners';
+
   private readonly REMOVE_TEXT_BTN: string = 'Remove';
 
   private readonly SELECT_TEXT_BTN: string = 'Select';
+
+  private readonly WINNER_SERVICES: WinnerServices = new WinnerServices();
 
   private readonly MAX_CARS_PER_PAGE: number = 7;
 
   private currentId = '';
 
   private currentPage = 0;
+
+  public isFinished = false;
 
   public async createGarageLayout(): Promise<DocumentFragment> {
     const carsList: Cars[] = await this.getCars();
@@ -300,7 +307,12 @@ export class Garage {
     try {
       const response = await responsePromise;
       if (response.status === 500) isResponse500 = true;
+      if (response.status === 200 && !this.isFinished) {
+        this.WINNER_SERVICES.checkWinnerList(id, time);
+        this.isFinished = true;
+      }
     } catch (error) {
+      console.log('ERROR~~', error);
       isResponse500 = true;
     }
   }
