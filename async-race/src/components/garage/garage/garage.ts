@@ -62,8 +62,8 @@ export class Garage {
     prevPageBtn.addEventListener('click', async () => {
       if (this.currentPage > 0) {
         this.currentPage -= 1;
-        garage.innerHTML = '';
         const container = checkQuerySelector('#container');
+        container.removeChild(garage);
         container.appendChild(await this.createGarageLayout());
       }
     });
@@ -75,8 +75,8 @@ export class Garage {
     nextPageBtn.addEventListener('click', async () => {
       if (this.currentPage < carsPerPageList.length - 1) {
         this.currentPage += 1;
-        garage.innerHTML = '';
         const container = checkQuerySelector('#container');
+        container.removeChild(garage);
         container.appendChild(await this.createGarageLayout());
       }
     });
@@ -225,11 +225,12 @@ export class Garage {
 
     if (target instanceof HTMLElement) {
       const garage = checkQuerySelector('.garage');
+      const container = checkQuerySelector('#container');
       const id: string = target.id.replace(/\D/g, '');
       this.deleteCar(id);
       this.getCars();
-      garage.innerHTML = '';
-      garage.appendChild(await this.createGarageLayout());
+      container.removeChild(garage);
+      container.appendChild(await this.createGarageLayout());
     }
   }
 

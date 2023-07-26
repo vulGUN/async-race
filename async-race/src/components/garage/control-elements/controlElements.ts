@@ -1,6 +1,7 @@
 import './controlElements.css';
 import { Garage, Cars } from '../garage/garage';
 import { checkQuerySelector } from '../../../utils/checkQuerySelector';
+import { CARS_LIST } from '../../сarsList';
 
 export class ControlElements {
   private readonly GARAGE: Garage;
@@ -18,6 +19,8 @@ export class ControlElements {
   private readonly RESET_BTN_TEXT = 'Reset';
 
   private readonly GENERATE_CARS_BTN_TEXT = 'Generate cars';
+
+  private readonly MAX_GENERATE_CARS: number = 100;
 
   private inputCarName = '';
 
@@ -95,7 +98,7 @@ export class ControlElements {
     createButton.classList.add('controls-create__button', 'button');
     createButton.textContent = this.CREATE_BTN_TEXT.toUpperCase();
     createButton.addEventListener('click', () => {
-      this.createCar();
+      this.createCar(this.inputCarName, this.inputCarColor);
       this.updateGarageList();
       inputName.value = '';
     });
@@ -166,6 +169,9 @@ export class ControlElements {
     const generateCarsButton: HTMLElement = document.createElement('div');
     generateCarsButton.classList.add('controls-btns__generate-cars-button', 'button');
     generateCarsButton.textContent = this.GENERATE_CARS_BTN_TEXT.toUpperCase();
+    generateCarsButton.addEventListener('click', () => {
+      this.generateCars();
+    });
     this.GARAGE.addBtnAnimation(generateCarsButton);
 
     controlsBtnWrapper.append(raceButton, resetButton, generateCarsButton);
@@ -184,21 +190,20 @@ export class ControlElements {
     return color;
   }
 
-  // !поправить дублирование класса garage
-
   public async updateGarageList(): Promise<void> {
     this.GARAGE.getCars();
     const garage = checkQuerySelector('.garage');
-    garage.innerHTML = '';
-    garage.appendChild(await this.GARAGE.createGarageLayout());
+    const container = checkQuerySelector('#container');
+    container.removeChild(garage);
+    container.appendChild(await this.GARAGE.createGarageLayout());
   }
 
-  public async createCar(): Promise<void> {
-    if (this.inputCarName) {
+  public async createCar(currentName: string, currentColor: string): Promise<void> {
+    if (currentName) {
       const url = `${this.SERVER_URL}${this.GARAGE_PATH}`;
       fetch(url, {
         method: 'POST',
-        body: JSON.stringify({ name: this.inputCarName, color: this.inputCarColor }),
+        body: JSON.stringify({ name: currentName, color: currentColor }),
         headers: { 'Content-Type': 'application/json' },
       });
     }
@@ -217,5 +222,17 @@ export class ControlElements {
       updateInput.value = '';
       updateInput.setAttribute('disabled', '');
     }
+  }
+
+  private async generateCars(): Promise<void> {
+    for (let i = 0; i < this.MAX_GENERATE_CARS; i += 1) {
+      const brand = CARS_LIST.brand[Math.floor(Math.random() * 50)];
+      const model = CARS_LIST.model[Math.floor(Math.random() * 50)];
+      const name = `${brand} ${model}`;
+      const color = this.getRandomColor();
+
+      this.createCar(name, color);
+    }
+    this.updateGarageList();
   }
 }

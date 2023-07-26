@@ -20,6 +20,11 @@ const baseConfig = {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
         type: 'asset/resource',
       },
+      {
+        test: /\.json$/,
+        use: 'json-loader',
+        type: 'javascript/auto',
+      },
     ],
   },
   resolve: {
