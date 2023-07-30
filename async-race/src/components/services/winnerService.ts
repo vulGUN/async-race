@@ -22,7 +22,7 @@ export class WinnerServices {
     const response: Response = await fetch(url);
 
     if (response.status !== 200) {
-      throw Error('No winner found');
+      throw new Error('No winner found');
     }
 
     const winner: Promise<WinnerType> = await response.json();
@@ -31,18 +31,24 @@ export class WinnerServices {
   }
 
   public async updateWinnerData(id: number, time: number): Promise<void> {
-    const timeToseconds = time / 1000;
+    const lastTimeToSecond = time / 1000;
 
     try {
       const winner = await this.getWinner(id);
       const { time: winnerTime, wins: winnerWins } = winner;
-      const updateWins = winnerWins + 1;
-      const minTime: number = Math.min(winnerTime, timeToseconds);
+      const newResult = this.updateWinnerResult(winnerTime, lastTimeToSecond, winnerWins);
 
-      this.updateWinner(id, minTime, updateWins);
+      this.updateWinner(id, newResult);
     } catch (error) {
-      this.createWinner(id, timeToseconds);
+      this.createWinner(id, lastTimeToSecond);
     }
+  }
+
+  private updateWinnerResult(currentTime: number, lastTime: number, wins: number): object {
+    const updateWins: number = wins + 1;
+    const minTime: number = Math.min(currentTime, lastTime);
+
+    return { wins: updateWins, time: minTime };
   }
 
   private async createWinner(currentId: number, currentTime: number): Promise<void> {
@@ -55,11 +61,11 @@ export class WinnerServices {
     });
   }
 
-  private async updateWinner(id: number, newTime: number, newWins: number): Promise<void> {
+  private async updateWinner(id: number, result: object): Promise<void> {
     const url = `${this.SERVER_URL}${this.WINNERS_PATH}/${id}`;
     await fetch(url, {
       method: 'PUT',
-      body: JSON.stringify({ wins: newWins, time: newTime }),
+      body: JSON.stringify(result),
       headers: { 'Content-Type': 'application/json' },
     });
   }
