@@ -1,7 +1,7 @@
-import { Garage, Cars } from '../garage/garage/garage';
+import { Cars } from '../garage/garage-elements/garage';
 import { WinnerServices } from '../services/WinnerService';
 import { GarageServices } from '../services/GarageService';
-import { getCarSvg } from '../garage/garage/carSvg';
+import { getCarSvg } from '../garage/garage-elements/carSvg';
 
 import './winners.css';
 
@@ -12,19 +12,9 @@ type WinnerType = {
 };
 
 export class Winners {
-  private readonly GARAGE: Garage;
-
-  // private readonly SERVER_URL: string = 'http://localhost:3000';
-
-  // private readonly WINNERS_PATH: string = '/winners';
-
   private readonly WINNER_SERVICES: WinnerServices = new WinnerServices();
 
   private readonly GARAGE_SERVICES: GarageServices = new GarageServices();
-
-  constructor(garage: Garage) {
-    this.GARAGE = garage;
-  }
 
   public async createWinnersLayout(): Promise<DocumentFragment> {
     const fragment = document.createDocumentFragment();

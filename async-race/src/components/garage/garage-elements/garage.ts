@@ -95,84 +95,6 @@ export class Garage {
     return fragment;
   }
 
-  private createRaceLayout(carsList: Cars[][], page: number): DocumentFragment {
-    const fragment: DocumentFragment = document.createDocumentFragment();
-
-    carsList[page].forEach((item) => {
-      const garageRace: HTMLDivElement = document.createElement('div');
-      garageRace.setAttribute('id', `garage__race-${item.id}`);
-      garageRace.classList.add('garage__race');
-
-      const controlsBtns: HTMLDivElement = document.createElement('div');
-      controlsBtns.classList.add('garage__controls');
-
-      const selectBtn: HTMLDivElement = document.createElement('div');
-      selectBtn.classList.add('garage__select-btn', 'button');
-      selectBtn.setAttribute('id', `garage__select-btn-${item.id}`);
-      selectBtn.innerText = this.SELECT_TEXT_BTN.toUpperCase();
-      selectBtn.addEventListener('click', (event: Event) => {
-        this.pressSelectBtn(event);
-      });
-      this.addBtnAnimation(selectBtn);
-
-      const removeBtn: HTMLDivElement = document.createElement('div');
-      removeBtn.classList.add('garage__remove-btn', 'button');
-      removeBtn.setAttribute('id', `garage__remove-btn-${item.id}`);
-      removeBtn.innerText = this.REMOVE_TEXT_BTN.toUpperCase();
-      removeBtn.addEventListener('click', (event: Event) => {
-        this.pressRemoveBtn(event);
-      });
-      this.addBtnAnimation(removeBtn);
-
-      const carName: HTMLDivElement = document.createElement('div');
-      carName.classList.add('garage__car-name');
-      carName.innerText = item.name;
-
-      controlsBtns.append(selectBtn, removeBtn, carName);
-
-      const garageDrive: HTMLDivElement = document.createElement('div');
-      garageDrive.classList.add('garage__drive');
-
-      const garageDriveBtns: HTMLDivElement = document.createElement('div');
-      garageDriveBtns.classList.add('garage__drive-btns');
-
-      const garageDriveStart: HTMLDivElement = document.createElement('div');
-      garageDriveStart.classList.add('garage__drive-start-btn');
-      garageDriveStart.setAttribute('id', `garage__drive-start-btn-${item.id}`);
-      garageDriveStart.innerText = 'D';
-      garageDriveStart.addEventListener('click', () => {
-        this.startRace(item.id, 'started');
-      });
-
-      const garageDriveStop: HTMLDivElement = document.createElement('div');
-      garageDriveStop.classList.add('garage__drive-stop-btn');
-      garageDriveStop.setAttribute('id', `garage__drive-stop-btn-${item.id}`);
-      garageDriveStop.innerText = 'R';
-      garageDriveStop.addEventListener('click', () => {
-        this.stopDrive(item.id, 'stopped');
-      });
-
-      garageDriveBtns.append(garageDriveStart, garageDriveStop);
-
-      const car: HTMLElement = document.createElement('div');
-      car.classList.add('garage__car');
-      car.setAttribute('id', `garage__car-${item.id}`);
-      car.innerHTML = getCarSvg(item.color);
-
-      const road: HTMLDivElement = document.createElement('div');
-      road.classList.add('garage__road');
-
-      const finish: HTMLDivElement = document.createElement('div');
-      finish.classList.add('garage__finish');
-
-      garageDrive.append(garageDriveBtns, car, road, finish);
-      garageRace.append(controlsBtns, garageDrive);
-      fragment.appendChild(garageRace);
-    });
-
-    return fragment;
-  }
-
   public getCurrentId(): string {
     return this.currentId;
   }
@@ -266,16 +188,6 @@ export class Garage {
     }
   }
 
-  private splitByPages(carsPerPage: number, carsList: Cars[]): Cars[][] {
-    const newCarsList: Cars[][] = [];
-
-    for (let i = 0; i < carsList.length; i += carsPerPage) {
-      newCarsList.push(carsList.slice(i, i + carsPerPage));
-    }
-
-    return newCarsList;
-  }
-
   public addBtnAnimation(element: HTMLElement): void {
     element.addEventListener('mousedown', (event) => {
       const { target } = event;
@@ -292,5 +204,93 @@ export class Garage {
         target.classList.remove('press-down');
       }
     });
+  }
+
+  private createRaceLayout(carsList: Cars[][], page: number): DocumentFragment {
+    const fragment: DocumentFragment = document.createDocumentFragment();
+
+    carsList[page].forEach((item) => {
+      const garageRace: HTMLDivElement = document.createElement('div');
+      garageRace.setAttribute('id', `garage__race-${item.id}`);
+      garageRace.classList.add('garage__race');
+
+      const controlsBtns: HTMLDivElement = document.createElement('div');
+      controlsBtns.classList.add('garage__controls');
+
+      const selectBtn: HTMLDivElement = document.createElement('div');
+      selectBtn.classList.add('garage__select-btn', 'button');
+      selectBtn.setAttribute('id', `garage__select-btn-${item.id}`);
+      selectBtn.innerText = this.SELECT_TEXT_BTN.toUpperCase();
+      selectBtn.addEventListener('click', (event: Event) => {
+        this.pressSelectBtn(event);
+      });
+      this.addBtnAnimation(selectBtn);
+
+      const removeBtn: HTMLDivElement = document.createElement('div');
+      removeBtn.classList.add('garage__remove-btn', 'button');
+      removeBtn.setAttribute('id', `garage__remove-btn-${item.id}`);
+      removeBtn.innerText = this.REMOVE_TEXT_BTN.toUpperCase();
+      removeBtn.addEventListener('click', (event: Event) => {
+        this.pressRemoveBtn(event);
+      });
+      this.addBtnAnimation(removeBtn);
+
+      const carName: HTMLDivElement = document.createElement('div');
+      carName.classList.add('garage__car-name');
+      carName.innerText = item.name;
+
+      controlsBtns.append(selectBtn, removeBtn, carName);
+
+      const garageDrive: HTMLDivElement = document.createElement('div');
+      garageDrive.classList.add('garage__drive');
+
+      const garageDriveBtns: HTMLDivElement = document.createElement('div');
+      garageDriveBtns.classList.add('garage__drive-btns');
+
+      const garageDriveStart: HTMLDivElement = document.createElement('div');
+      garageDriveStart.classList.add('garage__drive-start-btn');
+      garageDriveStart.setAttribute('id', `garage__drive-start-btn-${item.id}`);
+      garageDriveStart.innerText = 'D';
+      garageDriveStart.addEventListener('click', () => {
+        this.startRace(item.id, 'started');
+      });
+
+      const garageDriveStop: HTMLDivElement = document.createElement('div');
+      garageDriveStop.classList.add('garage__drive-stop-btn');
+      garageDriveStop.setAttribute('id', `garage__drive-stop-btn-${item.id}`);
+      garageDriveStop.innerText = 'R';
+      garageDriveStop.addEventListener('click', () => {
+        this.stopDrive(item.id, 'stopped');
+      });
+
+      garageDriveBtns.append(garageDriveStart, garageDriveStop);
+
+      const car: HTMLElement = document.createElement('div');
+      car.classList.add('garage__car');
+      car.setAttribute('id', `garage__car-${item.id}`);
+      car.innerHTML = getCarSvg(item.color);
+
+      const road: HTMLDivElement = document.createElement('div');
+      road.classList.add('garage__road');
+
+      const finish: HTMLDivElement = document.createElement('div');
+      finish.classList.add('garage__finish');
+
+      garageDrive.append(garageDriveBtns, car, road, finish);
+      garageRace.append(controlsBtns, garageDrive);
+      fragment.appendChild(garageRace);
+    });
+
+    return fragment;
+  }
+
+  private splitByPages(carsPerPage: number, carsList: Cars[]): Cars[][] {
+    const newCarsList: Cars[][] = [];
+
+    for (let i = 0; i < carsList.length; i += carsPerPage) {
+      newCarsList.push(carsList.slice(i, i + carsPerPage));
+    }
+
+    return newCarsList;
   }
 }

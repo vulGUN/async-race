@@ -1,4 +1,4 @@
-import { Garage, Cars } from '../garage/garage';
+import { Garage, Cars } from '../garage-elements/garage';
 import { GarageServices } from '../../services/GarageService';
 import { checkQuerySelector } from '../../../utils/checkQuerySelector';
 import { EngineServices } from '../../services/EngineService';
@@ -8,8 +8,6 @@ import './controlElements.css';
 
 export class ControlElements {
   private readonly GARAGE_SERVICES: GarageServices = new GarageServices();
-
-  private readonly ENGINE_SERVICES: EngineServices = new EngineServices();
 
   private readonly GARAGE: Garage;
 
@@ -66,6 +64,25 @@ export class ControlElements {
     pageBtn.append(garagePageBtn, winnersPageBtn);
 
     return pageBtn;
+  }
+
+  public getRandomColor(): string {
+    let color = '#';
+
+    for (let i = 0; i < 3; i += 1) {
+      const randomNum: number = Math.floor(Math.random() * 255 + 1);
+      color += randomNum.toString(16).padStart(2, '0').toUpperCase();
+    }
+
+    return color;
+  }
+
+  public async updateGarageList(): Promise<void> {
+    this.GARAGE_SERVICES.getCars();
+    const garage = checkQuerySelector('.garage');
+    const container = checkQuerySelector('#container');
+    container.removeChild(garage);
+    container.appendChild(await this.GARAGE.createGarageLayout());
   }
 
   private createAddItems(): HTMLElement {
@@ -181,25 +198,6 @@ export class ControlElements {
     controlsBtnWrapper.append(raceButton, resetButton, generateCarsButton);
 
     return controlsBtnWrapper;
-  }
-
-  public getRandomColor(): string {
-    let color = '#';
-
-    for (let i = 0; i < 3; i += 1) {
-      const randomNum: number = Math.floor(Math.random() * 255 + 1);
-      color += randomNum.toString(16).padStart(2, '0').toUpperCase();
-    }
-
-    return color;
-  }
-
-  public async updateGarageList(): Promise<void> {
-    this.GARAGE_SERVICES.getCars();
-    const garage = checkQuerySelector('.garage');
-    const container = checkQuerySelector('#container');
-    container.removeChild(garage);
-    container.appendChild(await this.GARAGE.createGarageLayout());
   }
 
   private async generateCars(): Promise<void> {

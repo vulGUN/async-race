@@ -1,5 +1,5 @@
 import { ControlElements } from '../components/garage/control-elements/controlElements';
-import { Garage } from '../components/garage/garage/garage';
+import { Garage } from '../components/garage/garage-elements/garage';
 import { Winners } from '../components/winners/winners';
 import { checkQuerySelector } from '../utils/checkQuerySelector';
 
@@ -8,7 +8,7 @@ export class App {
 
   private readonly CONTROL_ELEMENTS: ControlElements = new ControlElements(this.GARAGE);
 
-  private readonly WINNERS: Winners = new Winners(this.GARAGE);
+  private readonly WINNERS: Winners = new Winners();
 
   public async init(): Promise<void> {
     const container = checkQuerySelector('#container');
