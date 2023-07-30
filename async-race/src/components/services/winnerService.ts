@@ -12,7 +12,7 @@ export class WinnerServices {
   public async getWinnerList(): Promise<WinnerType[]> {
     const url = `${this.SERVER_URL}${this.WINNERS_PATH}`;
     const response: Response = await fetch(url);
-    const winnerList = await response.json();
+    const winnerList: Promise<WinnerType[]> = await response.json();
 
     return winnerList;
   }
@@ -20,44 +20,42 @@ export class WinnerServices {
   public async getWinner(id: number): Promise<WinnerType> {
     const url = `${this.SERVER_URL}${this.WINNERS_PATH}/${id}`;
     const response: Response = await fetch(url);
-    const winner = await response.json();
+    const winner: Promise<WinnerType> = await response.json();
 
     return winner;
   }
 
-  private async createWinner(currentId: number, currentTime: number): Promise<Response> {
+  public async updateWinnerData(id: number, time: number): Promise<void> {
+    const timeToseconds = time / 1000;
+
+    try {
+      const winner = await this.getWinner(id);
+      const { time: winnerTime, wins: winnerWins } = winner;
+      const updateWins = winnerWins + 1;
+      const minTime: number = Math.min(winnerTime, timeToseconds);
+
+      this.updateWinner(id, minTime, updateWins);
+    } catch (error) {
+      this.createWinner(id, timeToseconds);
+    }
+  }
+
+  private async createWinner(currentId: number, currentTime: number): Promise<void> {
     const url = `${this.SERVER_URL}${this.WINNERS_PATH}`;
-    const timeToseconds = currentTime / 1000;
 
-    const response: Response = await fetch(url, {
+    await fetch(url, {
       method: 'POST',
-      body: JSON.stringify({ id: currentId, wins: 1, time: timeToseconds }),
+      body: JSON.stringify({ id: currentId, wins: 1, time: currentTime }),
       headers: { 'Content-Type': 'application/json' },
     });
-
-    return response;
   }
 
-  private async updateWinner(id: number, time: number): Promise<Response> {
-    const winnerTime = (await this.getWinner(id)).time;
-    let winnerWins = (await this.getWinner(id)).wins;
-    const minTimeToseconds = Math.min(winnerTime, time / 1000);
-
+  private async updateWinner(id: number, newTime: number, newWins: number): Promise<void> {
     const url = `${this.SERVER_URL}${this.WINNERS_PATH}/${id}`;
-    const response: Response = await fetch(url, {
+    await fetch(url, {
       method: 'PUT',
-      body: JSON.stringify({ wins: (winnerWins += 1), time: minTimeToseconds }),
+      body: JSON.stringify({ wins: newWins, time: newTime }),
       headers: { 'Content-Type': 'application/json' },
     });
-
-    return response;
-  }
-
-  public async checkWinnerList(id: number, time: number): Promise<void> {
-    const winnerList: WinnerType[] = await this.getWinnerList();
-    const isWinner: boolean = winnerList.some((item) => item.id === id);
-
-    if (isWinner) this.updateWinner(id, time);
-    else this.createWinner(id, time);
   }
 }

@@ -1,14 +1,17 @@
-import './controlElements.css';
 import { Garage, Cars } from '../garage/garage';
+import { GarageServices } from '../../services/GarageService';
 import { checkQuerySelector } from '../../../utils/checkQuerySelector';
+import { EngineServices } from '../../services/EngineService';
 import { CARS_LIST } from '../../сarsList';
 
+import './controlElements.css';
+
 export class ControlElements {
+  private readonly GARAGE_SERVICES: GarageServices = new GarageServices();
+
+  private readonly ENGINE_SERVICES: EngineServices = new EngineServices();
+
   private readonly GARAGE: Garage;
-
-  private readonly SERVER_URL: string = 'http://127.0.0.1:3000';
-
-  private readonly GARAGE_PATH: string = '/garage';
 
   private readonly CREATE_BTN_TEXT = 'Create';
 
@@ -98,7 +101,7 @@ export class ControlElements {
     createButton.classList.add('controls-create__button', 'button');
     createButton.textContent = this.CREATE_BTN_TEXT.toUpperCase();
     createButton.addEventListener('click', () => {
-      this.createCar(this.inputCarName, this.inputCarColor);
+      this.GARAGE_SERVICES.createCar(this.inputCarName, this.inputCarColor);
       this.updateGarageList();
       inputName.value = '';
     });
@@ -130,7 +133,7 @@ export class ControlElements {
     updateButton.textContent = this.UPDATE_BTN_TEXT.toUpperCase();
     updateButton.addEventListener('click', () => {
       if (!inputName.hasAttribute('disabled')) {
-        this.updateCar(this.GARAGE.getCurrentId());
+        this.GARAGE_SERVICES.updateCar(this.GARAGE.getCurrentId());
         this.updateGarageList();
       }
     });
@@ -142,7 +145,8 @@ export class ControlElements {
   }
 
   private async createBtnItems(): Promise<HTMLElement> {
-    const carsList: Cars[] = await this.GARAGE.getCars();
+    const carsList: Cars[] = await this.GARAGE.getCarsPerPage();
+    const currentPage = this.GARAGE.getCurrentPage();
 
     const controlsBtnWrapper: HTMLDivElement = document.createElement('div');
     controlsBtnWrapper.classList.add('controls-btns');
@@ -152,7 +156,7 @@ export class ControlElements {
     raceButton.textContent = this.RACE_BTN_TEXT.toUpperCase();
     raceButton.addEventListener('click', () => {
       carsList.forEach((item) => {
-        this.GARAGE.startAndStopEngine(item.id, 'started');
+        this.GARAGE.startRace(item.id, 'started');
         this.GARAGE.isFinished = false;
       });
     });
@@ -191,37 +195,11 @@ export class ControlElements {
   }
 
   public async updateGarageList(): Promise<void> {
-    this.GARAGE.getCars();
+    this.GARAGE_SERVICES.getCars();
     const garage = checkQuerySelector('.garage');
     const container = checkQuerySelector('#container');
     container.removeChild(garage);
     container.appendChild(await this.GARAGE.createGarageLayout());
-  }
-
-  public async createCar(currentName: string, currentColor: string): Promise<void> {
-    if (currentName) {
-      const url = `${this.SERVER_URL}${this.GARAGE_PATH}`;
-      fetch(url, {
-        method: 'POST',
-        body: JSON.stringify({ name: currentName, color: currentColor }),
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-  }
-
-  public async updateCar(id: string): Promise<void> {
-    if (id) {
-      const url = `${this.SERVER_URL}${this.GARAGE_PATH}/${id}`;
-      const updateInput: HTMLInputElement = checkQuerySelector('.controls-update__input-text');
-      const updateInputColor: HTMLInputElement = checkQuerySelector('.controls-update__input-color');
-      fetch(url, {
-        method: 'PUT',
-        body: JSON.stringify({ name: updateInput.value, color: updateInputColor.value }),
-        headers: { 'Content-Type': 'application/json' },
-      });
-      updateInput.value = '';
-      updateInput.setAttribute('disabled', '');
-    }
   }
 
   private async generateCars(): Promise<void> {
@@ -231,7 +209,7 @@ export class ControlElements {
       const name = `${brand} ${model}`;
       const color = this.getRandomColor();
 
-      this.createCar(name, color);
+      this.GARAGE_SERVICES.createCar(name, color);
     }
     this.updateGarageList();
   }
