@@ -20,6 +20,11 @@ export class WinnerServices {
   public async getWinner(id: number): Promise<WinnerType> {
     const url = `${this.SERVER_URL}${this.WINNERS_PATH}/${id}`;
     const response: Response = await fetch(url);
+
+    if (response.status !== 200) {
+      throw Error('No winner found');
+    }
+
     const winner: Promise<WinnerType> = await response.json();
 
     return winner;
