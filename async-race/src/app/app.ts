@@ -21,34 +21,20 @@ export class App {
     const winnersPageBtn = checkQuerySelector('.page-button__winners');
 
     garagePageBtn.addEventListener('click', async () => {
-      const controls = document.querySelector('.controls');
-      const garage = document.querySelector('.garage');
-      const winners = document.querySelector('.winners');
+      const winners = checkQuerySelector('.winners');
 
-      if (winners) {
-        container.removeChild(winners);
-      }
-      if (controls) {
-        container.removeChild(controls);
-      }
-      if (garage) {
-        container.removeChild(garage);
-      }
+      container.removeChild(winners);
 
       container.appendChild(await this.CONTROL_ELEMENTS.createControlElementsLayout());
       container.appendChild(await this.GARAGE.createGarageLayout());
     });
 
     winnersPageBtn.addEventListener('click', async () => {
-      const controls = document.querySelector('.controls');
-      const garage = document.querySelector('.garage');
+      const controls = checkQuerySelector('.controls');
+      const garage = checkQuerySelector('.garage');
 
-      if (controls) {
-        container.removeChild(controls);
-      }
-      if (garage) {
-        container.removeChild(garage);
-      }
+      container.removeChild(controls);
+      container.removeChild(garage);
 
       container.appendChild(await this.WINNERS.createWinnersLayout());
     });
