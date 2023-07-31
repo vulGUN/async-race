@@ -1,15 +1,24 @@
+import { CommonService } from './CommonService';
+
 type Engine = {
   velocity: number;
   distance: number;
 };
 
-export class EngineServices {
-  private readonly SERVER_URL: string = 'http://localhost:3000';
+export type EngineStatusType = 'started' | 'stopped';
 
+export class EngineServices extends CommonService {
   private readonly ENGINE_PATH: string = '/engine';
 
-  public async startAndStopEngine(id: number, status: string): Promise<Engine> {
-    const url = `${this.SERVER_URL}${this.ENGINE_PATH}/?id=${id}&status=${status}`;
+  private readonly URL: string;
+
+  constructor() {
+    super();
+    this.URL = this.API_URL + this.ENGINE_PATH;
+  }
+
+  public async startAndStopEngine(id: number, status: EngineStatusType): Promise<Engine> {
+    const url = `${this.URL}/?id=${id}&status=${status}`;
 
     const response: Response = await fetch(url, { method: 'PATCH' });
     const engine: Engine = await response.json();
@@ -17,18 +26,17 @@ export class EngineServices {
     return engine;
   }
 
-  public async switchToDriveMode(id: number): Promise<boolean> {
-    const url = `${this.SERVER_URL}${this.ENGINE_PATH}/?id=${id}&status=drive`;
+  public async switchToDriveMode(id: number): Promise<void> {
+    const url = `${this.URL}/?id=${id}&status=drive`;
 
     try {
       const response = await fetch(url, { method: 'PATCH' });
 
-      if (response.ok) {
-        return false;
+      if (!response.ok) {
+        throw new Error('Engine broken');
       }
     } catch (error) {
-      console.error('Engine broken', error);
+      console.error('Car stopped', error);
     }
-    return true;
   }
 }

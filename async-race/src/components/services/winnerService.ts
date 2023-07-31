@@ -1,33 +1,40 @@
+import { CommonService } from './CommonService';
+
 export type WinnerType = {
   id: number;
   wins: number;
   time: number;
 };
 
-export class WinnerServices {
-  private readonly SERVER_URL: string = 'http://localhost:3000';
+type ResultType = {
+  wins: number;
+  time: number;
+};
 
+export class WinnerServices extends CommonService {
   private readonly WINNERS_PATH: string = '/winners';
 
-  public async getWinnerList(): Promise<WinnerType[]> {
-    const url = `${this.SERVER_URL}${this.WINNERS_PATH}`;
-    const response: Response = await fetch(url);
-    const winnerList: Promise<WinnerType[]> = await response.json();
+  private readonly URL: string;
 
-    return winnerList;
+  constructor() {
+    super();
+    this.URL = this.API_URL + this.WINNERS_PATH;
+  }
+
+  public async getWinnerList(): Promise<WinnerType[]> {
+    const response: Response = await fetch(this.URL);
+    return response.json();
   }
 
   public async getWinner(id: number): Promise<WinnerType> {
-    const url = `${this.SERVER_URL}${this.WINNERS_PATH}/${id}`;
+    const url = `${this.URL}/${id}`;
     const response: Response = await fetch(url);
 
     if (response.status !== 200) {
       throw new Error('No winner found');
     }
 
-    const winner: Promise<WinnerType> = await response.json();
-
-    return winner;
+    return response.json();
   }
 
   public async updateWinnerData(id: number, time: number): Promise<void> {
@@ -44,7 +51,7 @@ export class WinnerServices {
     }
   }
 
-  private updateWinnerResult(currentTime: number, lastTime: number, wins: number): object {
+  private updateWinnerResult(currentTime: number, lastTime: number, wins: number): ResultType {
     const updateWins: number = wins + 1;
     const minTime: number = Math.min(currentTime, lastTime);
 
@@ -52,21 +59,25 @@ export class WinnerServices {
   }
 
   private async createWinner(currentId: number, currentTime: number): Promise<void> {
-    const url = `${this.SERVER_URL}${this.WINNERS_PATH}`;
-
-    await fetch(url, {
+    await fetch(this.URL, {
       method: 'POST',
       body: JSON.stringify({ id: currentId, wins: 1, time: currentTime }),
       headers: { 'Content-Type': 'application/json' },
     });
   }
 
-  private async updateWinner(id: number, result: object): Promise<void> {
-    const url = `${this.SERVER_URL}${this.WINNERS_PATH}/${id}`;
+  private async updateWinner(id: number, result: ResultType): Promise<void> {
+    const url = `${this.URL}/${id}`;
     await fetch(url, {
       method: 'PUT',
       body: JSON.stringify(result),
       headers: { 'Content-Type': 'application/json' },
     });
+  }
+
+  public async removeWinner(id: string): Promise<void> {
+    const url = `${this.URL}/${id}`;
+
+    await fetch(url, { method: 'DELETE' });
   }
 }

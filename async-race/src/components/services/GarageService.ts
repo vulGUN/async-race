@@ -1,4 +1,4 @@
-import { checkQuerySelector } from '../../utils/checkQuerySelector';
+import { CommonService } from './CommonService';
 
 export type Cars = {
   id: number;
@@ -6,21 +6,25 @@ export type Cars = {
   name: string;
 };
 
-export class GarageServices {
-  private readonly SERVER_URL: string = 'http://localhost:3000';
-
+export class GarageServices extends CommonService {
   private readonly GARAGE_PATH: string = '/garage';
 
+  private readonly URL: string;
+
+  constructor() {
+    super();
+    this.URL = this.API_URL + this.GARAGE_PATH;
+  }
+
   public async getCars(): Promise<Cars[]> {
-    const url = `${this.SERVER_URL}${this.GARAGE_PATH}`;
-    const response = await fetch(url);
+    const response = await fetch(this.URL);
     const carsList = await response.json();
 
     return carsList;
   }
 
   public async getCar(id: string): Promise<Cars> {
-    const url = `${this.SERVER_URL}${this.GARAGE_PATH}/${id}`;
+    const url = `${this.URL}/${id}`;
     const response = await fetch(url);
     const car = await response.json();
 
@@ -28,32 +32,29 @@ export class GarageServices {
   }
 
   public async deleteCar(id: string): Promise<void> {
-    const url = `${this.SERVER_URL}${this.GARAGE_PATH}/${id}`;
+    const url = `${this.URL}/${id}`;
 
     await fetch(url, { method: 'DELETE' });
   }
 
   public async createCar(currentName: string, currentColor: string): Promise<void> {
-    if (currentName) {
-      const url = `${this.SERVER_URL}${this.GARAGE_PATH}`;
-      fetch(url, {
-        method: 'POST',
-        body: JSON.stringify({ name: currentName, color: currentColor }),
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-  }
+    const createdCar = { name: currentName, color: currentColor };
 
-  public async updateCar(id: string): Promise<void> {
-    const url = `${this.SERVER_URL}${this.GARAGE_PATH}/${id}`;
-    const updateInput: HTMLInputElement = checkQuerySelector('.controls-update__input-text');
-    const updateInputColor: HTMLInputElement = checkQuerySelector('.controls-update__input-color');
-    fetch(url, {
-      method: 'PUT',
-      body: JSON.stringify({ name: updateInput.value, color: updateInputColor.value }),
+    fetch(this.URL, {
+      method: 'POST',
+      body: JSON.stringify(createdCar),
       headers: { 'Content-Type': 'application/json' },
     });
-    updateInput.value = '';
-    updateInput.setAttribute('disabled', '');
+  }
+
+  public async updateCar(id: string, currentColor: string, currentName: string): Promise<void> {
+    const url = `${this.URL}/${id}`;
+    const createdCar = { name: currentName, color: currentColor };
+
+    fetch(url, {
+      method: 'PUT',
+      body: JSON.stringify(createdCar),
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }

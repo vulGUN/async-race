@@ -1,7 +1,7 @@
 import { checkQuerySelector } from '../../../utils/checkQuerySelector';
 import { WinnerServices } from '../../services/WinnerService';
 import { GarageServices } from '../../services/GarageService';
-import { EngineServices } from '../../services/EngineService';
+import { EngineServices, EngineStatusType } from '../../services/EngineService';
 import { getCarSvg } from './carSvg';
 
 import './garage.css';
@@ -114,6 +114,11 @@ export class Garage {
       this.GARAGE_SERVICES.getCars();
       container.removeChild(garage);
       container.appendChild(await this.createGarageLayout());
+
+      const winner = await this.WINNER_SERVICES.getWinner(+id);
+      if (winner) {
+        this.WINNER_SERVICES.removeWinner(id);
+      }
     }
   }
 
@@ -133,16 +138,10 @@ export class Garage {
     }
   }
 
-  public async startRace(id: number, status: string): Promise<void> {
+  public async startRace(id: number, status: EngineStatusType): Promise<void> {
     const { velocity, distance } = await this.ENGINE_SERVICES.startAndStopEngine(id, status);
-
+    const endPosition = this.getAnimationCoordinates(id);
     const car: HTMLElement = checkQuerySelector(`#garage__car-${id}`);
-    const garage: HTMLElement = checkQuerySelector('.garage');
-    const currentWidth: number = garage.clientWidth;
-    const styles: CSSStyleDeclaration = window.getComputedStyle(car);
-    const leftValue: number = parseFloat(styles.left);
-
-    const endPosition: number = currentWidth - car.offsetWidth - leftValue;
     const time: number = Math.trunc(distance / velocity);
 
     let animationStart: number;
@@ -172,15 +171,18 @@ export class Garage {
 
     requestAnimationFrame(animate);
 
-    isEngineBroken = await this.ENGINE_SERVICES.switchToDriveMode(id);
-
-    if (!isEngineBroken && !this.isFinished) {
-      this.isFinished = true;
-      this.WINNER_SERVICES.updateWinnerData(id, time);
+    try {
+      await this.ENGINE_SERVICES.switchToDriveMode(id);
+      if (!this.isFinished) {
+        this.isFinished = true;
+        this.WINNER_SERVICES.updateWinnerData(id, time);
+      }
+    } catch (error) {
+      isEngineBroken = true;
     }
   }
 
-  public async stopDrive(id: number, status: string): Promise<void> {
+  public async stopDrive(id: number, status: EngineStatusType): Promise<void> {
     const { velocity } = await this.ENGINE_SERVICES.startAndStopEngine(id, status);
     if (!velocity) {
       const car: HTMLElement = checkQuerySelector(`#garage__car-${id}`);
@@ -204,6 +206,18 @@ export class Garage {
         target.classList.remove('press-down');
       }
     });
+  }
+
+  private getAnimationCoordinates(id: number): number {
+    const car: HTMLElement = checkQuerySelector(`#garage__car-${id}`);
+    const garage: HTMLElement = checkQuerySelector('.garage');
+    const currentWidth: number = garage.clientWidth;
+    const styles: CSSStyleDeclaration = window.getComputedStyle(car);
+    const leftValue: number = parseFloat(styles.left);
+
+    const endPosition: number = currentWidth - car.offsetWidth - leftValue;
+
+    return endPosition;
   }
 
   private createRaceLayout(carsList: Cars[][], page: number): DocumentFragment {

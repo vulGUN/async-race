@@ -1,7 +1,6 @@
 import { Garage, Cars } from '../garage-elements/garage';
 import { GarageServices } from '../../services/GarageService';
 import { checkQuerySelector } from '../../../utils/checkQuerySelector';
-import { EngineServices } from '../../services/EngineService';
 import { CARS_LIST } from '../../сarsList';
 
 import './controlElements.css';
@@ -118,11 +117,13 @@ export class ControlElements {
     createButton.classList.add('controls-create__button', 'button');
     createButton.textContent = this.CREATE_BTN_TEXT.toUpperCase();
     createButton.addEventListener('click', () => {
-      this.GARAGE_SERVICES.createCar(this.inputCarName, this.inputCarColor);
-      this.updateGarageList();
-      inputName.value = '';
+      if (inputName.value) {
+        this.GARAGE_SERVICES.createCar(this.inputCarName, this.inputCarColor);
+        this.updateGarageList();
+        inputName.value = '';
+      }
+      this.GARAGE.addBtnAnimation(createButton);
     });
-    this.GARAGE.addBtnAnimation(createButton);
 
     controlsCreateWrapper.append(inputName, inputColor, createButton);
 
@@ -150,8 +151,14 @@ export class ControlElements {
     updateButton.textContent = this.UPDATE_BTN_TEXT.toUpperCase();
     updateButton.addEventListener('click', () => {
       if (!inputName.hasAttribute('disabled')) {
-        this.GARAGE_SERVICES.updateCar(this.GARAGE.getCurrentId());
+        const id = this.GARAGE.getCurrentId();
+        const colorValue: string = inputColor.value;
+        const nameValue: string = inputName.value;
+
+        this.GARAGE_SERVICES.updateCar(id, colorValue, nameValue);
         this.updateGarageList();
+        inputName.value = '';
+        inputName.setAttribute('disabled', '');
       }
     });
     this.GARAGE.addBtnAnimation(updateButton);
@@ -163,7 +170,6 @@ export class ControlElements {
 
   private async createBtnItems(): Promise<HTMLElement> {
     const carsList: Cars[] = await this.GARAGE.getCarsPerPage();
-    const currentPage = this.GARAGE.getCurrentPage();
 
     const controlsBtnWrapper: HTMLDivElement = document.createElement('div');
     controlsBtnWrapper.classList.add('controls-btns');

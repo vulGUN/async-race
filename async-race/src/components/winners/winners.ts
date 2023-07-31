@@ -1,15 +1,9 @@
 import { Cars } from '../garage/garage-elements/garage';
-import { WinnerServices } from '../services/WinnerService';
+import { WinnerServices, WinnerType } from '../services/WinnerService';
 import { GarageServices } from '../services/GarageService';
 import { getCarSvg } from '../garage/garage-elements/carSvg';
 
 import './winners.css';
-
-type WinnerType = {
-  id: number;
-  wins: number;
-  time: number;
-};
 
 export class Winners {
   private readonly WINNER_SERVICES: WinnerServices = new WinnerServices();
