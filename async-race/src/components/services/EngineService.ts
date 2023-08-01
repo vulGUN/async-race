@@ -28,15 +28,10 @@ export class EngineServices extends CommonService {
 
   public async switchToDriveMode(id: number): Promise<void> {
     const url = `${this.URL}/?id=${id}&status=drive`;
+    const response = await fetch(url, { method: 'PATCH' });
 
-    try {
-      const response = await fetch(url, { method: 'PATCH' });
-
-      if (!response.ok) {
-        throw new Error('Engine broken');
-      }
-    } catch (error) {
-      console.error('Car stopped', error);
+    if (!response.ok) {
+      throw new Error('Engine broken');
     }
   }
 }
