@@ -103,25 +103,6 @@ export class Garage {
     return this.currentPage;
   }
 
-  public async pressRemoveBtn(event: Event): Promise<void> {
-    const { target } = event;
-
-    if (target instanceof HTMLElement) {
-      const garage = checkQuerySelector('.garage');
-      const container = checkQuerySelector('#container');
-      const id: string = target.id.replace(/\D/g, '');
-      this.GARAGE_SERVICES.deleteCar(id);
-      this.GARAGE_SERVICES.getCars();
-      container.removeChild(garage);
-      container.appendChild(await this.createGarageLayout());
-
-      const winner = await this.WINNER_SERVICES.getWinner(+id);
-      if (winner) {
-        this.WINNER_SERVICES.removeWinner(id);
-      }
-    }
-  }
-
   public async pressSelectBtn(event: Event): Promise<void> {
     const { target } = event;
 
@@ -206,6 +187,25 @@ export class Garage {
         target.classList.remove('press-down');
       }
     });
+  }
+
+  private async pressRemoveBtn(event: Event): Promise<void> {
+    const { target } = event;
+
+    if (target instanceof HTMLElement) {
+      const garage = checkQuerySelector('.garage');
+      const container = checkQuerySelector('#container');
+      const id: string = target.id.replace(/\D/g, '');
+      this.GARAGE_SERVICES.deleteCar(id);
+      this.GARAGE_SERVICES.getCars();
+      container.removeChild(garage);
+      container.appendChild(await this.createGarageLayout());
+
+      const winner = await this.WINNER_SERVICES.getWinner(+id);
+      if (winner) {
+        this.WINNER_SERVICES.removeWinner(id);
+      }
+    }
   }
 
   private getAnimationCoordinates(id: number): number {
